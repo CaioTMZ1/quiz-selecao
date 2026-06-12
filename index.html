@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Museu da Seleção — Quiz das Copas</title>
+  <style>
+    :root {
+      --green-950: #031f12;
+      --green-900: #06351f;
+      --green-800: #07502f;
+      --gold: #d6a637;
+      --gold-light: #f2d27b;
+      --blue: #1f5fbf;
+      --white: #f7f3e8;
+      --muted: #cfc6aa;
+      --danger: #c94747;
+      --success: #31a76f;
+      --card: rgba(2, 25, 14, 0.82);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at top, rgba(14, 91, 51, 0.85), transparent 38%),
+        linear-gradient(135deg, #031f12, #062f1c 45%, #01140b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(1060px, 100%);
+      min-height: 680px;
+      border: 2px solid var(--gold);
+      border-radius: 22px;
+      background:
+        linear-gradient(rgba(3, 31, 18, 0.88), rgba(3, 31, 18, 0.92)),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 6px);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(242, 210, 123, 0.28);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .app::before,
+    .app::after {
+      content: "";
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      border: 2px solid var(--gold);
+      pointer-events: none;
+    }
+
+    .app::before {
+      left: 18px;
+      top: 18px;
+      border-right: 0;
+      border-bottom: 0;
+      border-radius: 18px 0 0 0;
+    }
+
+    .app::after {
+      right: 18px;
+      bottom: 18px;
+      border-left: 0;
+      border-top: 0;
+      border-radius: 0 0 18px 0;
+    }
+
+    header {
+      padding: 30px 34px 22px;
+      border-bottom: 1px solid rgba(214, 166, 55, 0.35);
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(28px, 5vw, 56px);
+      letter-spacing: 0.08em;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+    }
+
+    .brand p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .score-pill {
+      min-width: 150px;
+      text-align: center;
+      padding: 12px 16px;
+      border: 1px solid rgba(214, 166, 55, 0.55);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.22);
+      color: var(--gold-light);
+      font-weight: 800;
+    }
+
+    main {
+      padding: 34px;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid rgba(214, 166, 55, 0.35);
+      border-radius: 20px;
+      padding: clamp(22px, 4vw, 34px);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-top: 22px;
+    }
+
+    label {
+      color: var(--gold-light);
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(214, 166, 55, 0.45);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--white);
+      outline: none;
+      font-size: 18px;
+    }
+
+    input:focus {
+      border-color: var(--gold-light);
+      box-shadow: 0 0 0 3px rgba(214, 166, 55, 0.18);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 0.02em;
+      transition: 0.18s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, var(--gold-light), var(--gold));
+      color: #201300;
+      box-shadow: 0 8px 22px rgba(214, 166, 55, 0.22);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .rules {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .rules li {
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.055);
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .quiz-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 22px;
+      color: var(--muted);
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 26px;
+      border: 1px solid rgba(214, 166, 55, 0.22);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #13934e, var(--gold), var(--blue));
+      transition: width 0.25s ease;
+    }
+
+    .question {
+      font-size: clamp(23px, 3.5vw, 38px);
+      line-height: 1.2;
+      margin: 0 0 24px;
+    }
+
+    .answers {
+      display: grid;
+      gap: 14px;
+    }
+
+    .answer {
+      text-align: left;
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 18px;
+      border-radius: 15px;
+      font-size: 17px;
+    }
+
+    .answer.correct {
+      background: rgba(49, 167, 111, 0.24);
+      border-color: rgba(49, 167, 111, 0.9);
+    }
+
+    .answer.wrong {
+      background: rgba(201, 71, 71, 0.24);
+      border-color: rgba(201, 71, 71, 0.9);
+    }
+
+    .feedback {
+      min-height: 30px;
+      margin-top: 18px;
+      font-weight: 750;
+    }
+
+    .feedback.ok {
+      color: #82e6b2;
+    }
+
+    .feedback.bad {
+      color: #ff9c9c;
+    }
+
+    .result-card {
+      text-align: center;
+    }
+
+    .result-card h2 {
+      font-size: clamp(32px, 6vw, 70px);
+      margin: 0;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .result-card .big-score {
+      font-size: clamp(42px, 8vw, 90px);
+      font-weight: 900;
+      margin: 18px 0 6px;
+    }
+
+    .ranking {
+      margin-top: 26px;
+      overflow: hidden;
+      border-radius: 16px;
+      border: 1px solid rgba(214, 166, 55, 0.3);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    th,
+    td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    th {
+      color: var(--gold-light);
+      text-transform: uppercase;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+      background: rgba(214, 166, 55, 0.10);
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+    }
+
+    @media (max-width: 780px) {
+      body {
+        padding: 12px;
+      }
+
+      header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      .intro-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .score-pill {
+        width: 100%;
+      }
+
+      th:nth-child(4),
+      td:nth-child(4) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <h1>Quiz da Seleção</h1>
+        <p>Mini game sobre o Brasil nas Copas do Mundo</p>
+      </div>
+      <div class="score-pill" id="headerScore">0 ponto</div>
+    </header>
+
+    <main>
+      <section class="screen active" id="startScreen">
+        <div class="intro-grid">
+          <div class="panel">
+            <h2>Entrar no jogo</h2>
+            <p>Informe seu nome para começar. Ao final, sua pontuação será salva no ranking local deste navegador.</p>
+
+            <div class="field">
+              <label for="playerName">Nome do jogador</label>
+              <input id="playerName" maxlength="24" placeholder="Ex: UGE" autocomplete="off" />
+            </div>
+
+            <div class="btn-row">
+              <button class="btn-primary" id="startBtn">Começar partida</button>
+              <button class="btn-secondary" id="rankingBtn">Ver ranking</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h2>Regras</h2>
+            <ul class="rules">
+              <li>São 10 perguntas por partida, sorteadas de um banco maior.</li>
+              <li>Cada acerto vale 10 pontos.</li>
+              <li>O ranking guarda nome, pontuação, acertos e data.</li>
+              <li>O histórico fica salvo no navegador usando localStorage.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="quizScreen">
+        <div class="panel">
+          <div class="quiz-top">
+            <span id="playerLabel">Jogador</span>
+            <span id="questionCount">Pergunta 1/10</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+
+          <h2 class="question" id="questionText"></h2>
+          <div class="answers" id="answers"></div>
+          <div class="feedback" id="feedback"></div>
+
+          <div class="btn-row">
+            <button class="btn-primary" id="nextBtn" disabled>Próxima</button>
+            <button class="btn-secondary" id="quitBtn">Encerrar</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="resultScreen">
+        <div class="panel result-card">
+          <h2>Fim de jogo</h2>
+          <div class="big-score" id="finalScore">0</div>
+          <p id="finalMessage"></p>
+
+          <div class="btn-row" style="justify-content:center">
+            <button class="btn-primary" id="playAgainBtn">Jogar novamente</button>
+            <button class="btn-secondary" id="goRankingBtn">Ver ranking</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="rankingScreen">
+        <div class="panel">
+          <h2>Ranking</h2>
+          <p>As pontuações são salvas localmente neste navegador.</p>
+          <div class="ranking" id="rankingTable"></div>
+
+          <div class="btn-row">
+            <button class="btn-primary" id="backHomeBtn">Voltar ao início</button>
+            <button class="btn-secondary" id="clearRankingBtn">Limpar ranking</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const QUESTIONS = [
+      {
+        q: "Quem foi o artilheiro do Brasil na Copa do Mundo de 2002?",
+        options: ["Ronaldo", "Rivaldo", "Ronaldinho Gaúcho", "Roberto Carlos"],
+        answer: "Ronaldo",
+        explain: "Ronaldo marcou 8 gols na Copa de 2002."
+      },
+      {
+        q: "Quem foi o adversário do Brasil na final da Copa de 2002?",
+        options: ["Alemanha", "Itália", "França", "Argentina"],
+        answer: "Alemanha",
+        explain: "Brasil venceu a Alemanha por 2 a 0 na final."
+      },
+      {
+        q: "Por quem o Brasil foi eliminado na Copa do Mundo de 2006?",
+        options: ["França", "Holanda", "Alemanha", "Portugal"],
+        answer: "França",
+        explain: "A França venceu o Brasil por 1 a 0 nas quartas de final."
+      },
+      {
+        q: "Por quem o Brasil foi eliminado na Copa do Mundo de 2010?",
+        options: ["Holanda", "Espanha", "Alemanha", "Uruguai"],
+        answer: "Holanda",
+        explain: "A Holanda venceu o Brasil por 2 a 1 nas quartas de final."
+      },
+      {
+        q: "Por quem o Brasil foi eliminado na Copa do Mundo de 2018?",
+        options: ["Bélgica", "Croácia", "França", "México"],
+        answer: "Bélgica",
+        explain: "A Bélgica venceu o Brasil por 2 a 1 nas quartas de final."
+      },
+      {
+        q: "Por quem o Brasil foi eliminado na Copa do Mundo de 2022?",
+        options: ["Croácia", "Argentina", "França", "Holanda"],
+        answer: "Croácia",
+        explain: "A Croácia eliminou o Brasil nos pênaltis nas quartas de final."
+      },
+      {
+        q: "Quem foi o capitão do Brasil no pentacampeonato de 2002?",
+        options: ["Cafu", "Ronaldo", "Rivaldo", "Lúcio"],
+        answer: "Cafu",
+        explain: "Cafu levantou a taça como capitão em 2002."
+      },
+      {
+        q: "Quem foi o capitão do Brasil no tetracampeonato de 1994?",
+        options: ["Dunga", "Romário", "Bebeto", "Taffarel"],
+        answer: "Dunga",
+        explain: "Dunga foi o capitão da Seleção em 1994."
+      },
+      {
+        q: "Quem marcou o pênalti decisivo do Brasil na final da Copa de 1994?",
+        options: ["Dunga", "Romário", "Branco", "Márcio Santos"],
+        answer: "Dunga",
+        explain: "Dunga converteu o quarto pênalti; depois Baggio errou para a Itália."
+      },
+      {
+        q: "Quem foi o principal artilheiro do Brasil na Copa de 1994?",
+        options: ["Romário", "Bebeto", "Raí", "Branco"],
+        answer: "Romário",
+        explain: "Romário marcou 5 gols na campanha do tetra."
+      },
+      {
+        q: "Quem foi o adversário do Brasil na final da Copa de 1994?",
+        options: ["Itália", "Alemanha", "Holanda", "Suécia"],
+        answer: "Itália",
+        explain: "Brasil e Itália decidiram a Copa de 1994 nos pênaltis."
+      },
+      {
+        q: "Quem foi o adversário do Brasil na final da Copa de 1970?",
+        options: ["Itália", "Inglaterra", "Uruguai", "Alemanha Ocidental"],
+        answer: "Itália",
+        explain: "O Brasil venceu a Itália por 4 a 1 na final de 1970."
+      },
+      {
+        q: "Quem foi o artilheiro do Brasil na Copa de 1970?",
+        options: ["Jairzinho", "Pelé", "Tostão", "Rivellino"],
+        answer: "Jairzinho",
+        explain: "Jairzinho marcou em todos os jogos do Brasil na Copa de 1970."
+      },
+      {
+        q: "Qual jogador brasileiro se tornou o único tricampeão mundial como atleta?",
+        options: ["Pelé", "Garrincha", "Cafu", "Zagallo"],
+        answer: "Pelé",
+        explain: "Pelé venceu as Copas de 1958, 1962 e 1970."
+      },
+      {
+        q: "Em qual país foi disputada a Copa de 1970?",
+        options: ["México", "Chile", "Inglaterra", "Argentina"],
+        answer: "México",
+        explain: "A Copa de 1970 foi disputada no México."
+      },
+      {
+        q: "Em qual Copa o Brasil conquistou sua primeira estrela?",
+        options: ["1958", "1950", "1962", "1970"],
+        answer: "1958",
+        explain: "O primeiro título mundial do Brasil veio em 1958."
+      },
+      {
+        q: "Quem foi o adversário do Brasil na final da Copa de 1958?",
+        options: ["Suécia", "França", "Alemanha Ocidental", "Tchecoslováquia"],
+        answer: "Suécia",
+        explain: "O Brasil venceu a Suécia por 5 a 2 na final."
+      },
+      {
+        q: "Quem foi o artilheiro do Brasil na Copa de 1958?",
+        options: ["Pelé", "Vavá", "Garrincha", "Didi"],
+        answer: "Pelé",
+        explain: "Pelé marcou 6 gols na Copa de 1958."
+      },
+      {
+        q: "Quem foi o adversário do Brasil na final da Copa de 1962?",
+        options: ["Tchecoslováquia", "Chile", "Inglaterra", "Iugoslávia"],
+        answer: "Tchecoslováquia",
+        explain: "O Brasil venceu a Tchecoslováquia por 3 a 1."
+      },
+      {
+        q: "Quem foi um dos artilheiros do Brasil na Copa de 1962?",
+        options: ["Garrincha", "Zito", "Didi", "Nilton Santos"],
+        answer: "Garrincha",
+        explain: "Garrincha marcou 4 gols e foi destaque do bicampeonato."
+      },
+      {
+        q: "Por quem o Brasil foi derrotado no jogo decisivo da Copa de 1950?",
+        options: ["Uruguai", "Itália", "Argentina", "Espanha"],
+        answer: "Uruguai",
+        explain: "O Uruguai venceu o Brasil por 2 a 1 no Maracanã."
+      },
+      {
+        q: "Por quem o Brasil foi eliminado na Copa de 1982?",
+        options: ["Itália", "Argentina", "França", "Alemanha Ocidental"],
+        answer: "Itália",
+        explain: "A Itália venceu o Brasil por 3 a 2 no jogo decisivo da segunda fase."
+      },
+      {
+        q: "Por quem o Brasil foi eliminado na Copa de 1986?",
+        options: ["França", "Argentina", "Alemanha Ocidental", "Inglaterra"],
+        answer: "França",
+        explain: "A França eliminou o Brasil nos pênaltis nas quartas de final."
+      },
+      {
+        q: "Por quem o Brasil foi eliminado na Copa de 1990?",
+        options: ["Argentina", "Itália", "Alemanha", "Holanda"],
+        answer: "Argentina",
+        explain: "A Argentina venceu o Brasil por 1 a 0 nas oitavas de final."
+      },
+      {
+        q: "Quem era o técnico do Brasil no pentacampeonato de 2002?",
+        options: ["Luiz Felipe Scolari", "Carlos Alberto Parreira", "Zagallo", "Tite"],
+        answer: "Luiz Felipe Scolari",
+        explain: "Felipão comandou o Brasil na conquista de 2002."
+      },
+      {
+        q: "Quem era o técnico do Brasil no tetracampeonato de 1994?",
+        options: ["Carlos Alberto Parreira", "Zagallo", "Telê Santana", "Luiz Felipe Scolari"],
+        answer: "Carlos Alberto Parreira",
+        explain: "Parreira foi o técnico campeão mundial em 1994."
+      },
+      {
+        q: "Quem era o técnico do Brasil na Copa de 1970?",
+        options: ["Zagallo", "Telê Santana", "Vicente Feola", "Aymoré Moreira"],
+        answer: "Zagallo",
+        explain: "Zagallo comandou a Seleção no tricampeonato de 1970."
+      },
+      {
+        q: "Em qual Copa aconteceu a derrota do Brasil por 7 a 1 para a Alemanha?",
+        options: ["2014", "2010", "2018", "2006"],
+        answer: "2014",
+        explain: "O jogo ocorreu na semifinal da Copa de 2014."
+      },
+      {
+        q: "Quem foi o artilheiro do Brasil na Copa de 2014?",
+        options: ["Neymar", "Oscar", "Fred", "David Luiz"],
+        answer: "Neymar",
+        explain: "Neymar marcou 4 gols na Copa de 2014."
+      },
+      {
+        q: "Contra quem o Brasil venceu a final da Copa das Confederações de 2013?",
+        options: ["Espanha", "Itália", "Uruguai", "França"],
+        answer: "Espanha",
+        explain: "O Brasil venceu a Espanha por 3 a 0 no Maracanã."
+      }
+    ];
+
+    const TOTAL_QUESTIONS = 10;
+    const POINTS_PER_ANSWER = 10;
+    const STORAGE_KEY = "ranking_selecao_brasileira_copas";
+
+    let player = "";
+    let selectedQuestions = [];
+    let currentIndex = 0;
+    let score = 0;
+    let correctAnswers = 0;
+    let answered = false;
+
+    const screens = {
+      start: document.getElementById("startScreen"),
+      quiz: document.getElementById("quizScreen"),
+      result: document.getElementById("resultScreen"),
+      ranking: document.getElementById("rankingScreen")
+    };
+
+    const playerNameInput = document.getElementById("playerName");
+    const startBtn = document.getElementById("startBtn");
+    const rankingBtn = document.getElementById("rankingBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const quitBtn = document.getElementById("quitBtn");
+    const playAgainBtn = document.getElementById("playAgainBtn");
+    const goRankingBtn = document.getElementById("goRankingBtn");
+    const backHomeBtn = document.getElementById("backHomeBtn");
+    const clearRankingBtn = document.getElementById("clearRankingBtn");
+
+    function showScreen(name) {
+      Object.values(screens).forEach(screen => screen.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    function updateHeaderScore() {
+      document.getElementById("headerScore").textContent = `${score} ${score === 1 ? "ponto" : "pontos"}`;
+    }
+
+    function shuffle(array) {
+      return [...array].sort(() => Math.random() - 0.5);
+    }
+
+    function startGame() {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        alert("Digite o nome do jogador para começar.");
+        playerNameInput.focus();
+        return;
+      }
+
+      player = name;
+      selectedQuestions = shuffle(QUESTIONS).slice(0, TOTAL_QUESTIONS).map(q => ({
+        ...q,
+        options: shuffle(q.options)
+      }));
+
+      currentIndex = 0;
+      score = 0;
+      correctAnswers = 0;
+      answered = false;
+      updateHeaderScore();
+      showScreen("quiz");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      answered = false;
+      nextBtn.disabled = true;
+
+      const item = selectedQuestions[currentIndex];
+      document.getElementById("playerLabel").textContent = `Jogador: ${player}`;
+      document.getElementById("questionCount").textContent = `Pergunta ${currentIndex + 1}/${TOTAL_QUESTIONS}`;
+      document.getElementById("progressBar").style.width = `${(currentIndex / TOTAL_QUESTIONS) * 100}%`;
+      document.getElementById("questionText").textContent = item.q;
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("feedback").className = "feedback";
+
+      const answersEl = document.getElementById("answers");
+      answersEl.innerHTML = "";
+
+      item.options.forEach(option => {
+        const button = document.createElement("button");
+        button.className = "answer";
+        button.textContent = option;
+        button.onclick = () => selectAnswer(button, option);
+        answersEl.appendChild(button);
+      });
+    }
+
+    function selectAnswer(button, option) {
+      if (answered) return;
+      answered = true;
+
+      const item = selectedQuestions[currentIndex];
+      const allButtons = document.querySelectorAll(".answer");
+      allButtons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === item.answer) btn.classList.add("correct");
+      });
+
+      const feedback = document.getElementById("feedback");
+
+      if (option === item.answer) {
+        score += POINTS_PER_ANSWER;
+        correctAnswers++;
+        button.classList.add("correct");
+        feedback.textContent = `Correto! ${item.explain}`;
+        feedback.className = "feedback ok";
+      } else {
+        button.classList.add("wrong");
+        feedback.textContent = `Errado. Resposta correta: ${item.answer}. ${item.explain}`;
+        feedback.className = "feedback bad";
+      }
+
+      updateHeaderScore();
+      nextBtn.disabled = false;
+    }
+
+    function nextQuestion() {
+      currentIndex++;
+      if (currentIndex >= TOTAL_QUESTIONS) {
+        finishGame();
+      } else {
+        renderQuestion();
+      }
+    }
+
+    function finishGame() {
+      document.getElementById("progressBar").style.width = "100%";
+
+      const record = {
+        name: player,
+        score,
+        correct: correctAnswers,
+        total: TOTAL_QUESTIONS,
+        date: new Date().toLocaleString("pt-BR")
+      };
+
+      saveScore(record);
+
+      document.getElementById("finalScore").textContent = `${score} pontos`;
+      document.getElementById("finalMessage").textContent =
+        `${player}, você acertou ${correctAnswers} de ${TOTAL_QUESTIONS} perguntas.`;
+      showScreen("result");
+    }
+
+    function getRanking() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveScore(record) {
+      const ranking = getRanking();
+      ranking.push(record);
+      ranking.sort((a, b) => b.score - a.score || b.correct - a.correct);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(ranking.slice(0, 20)));
+    }
+
+    function renderRanking() {
+      const ranking = getRanking();
+      const table = document.getElementById("rankingTable");
+
+      if (!ranking.length) {
+        table.innerHTML = `<div class="empty">Ainda não há pontuações salvas.</div>`;
+        return;
+      }
+
+      const rows = ranking.map((item, index) => `
+        <tr>
+          <td>${index + 1}º</td>
+          <td>${escapeHtml(item.name)}</td>
+          <td>${item.score}</td>
+          <td>${item.correct}/${item.total}</td>
+          <td>${item.date}</td>
+        </tr>
+      `).join("");
+
+      table.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Posição</th>
+              <th>Jogador</th>
+              <th>Pontos</th>
+              <th>Acertos</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    startBtn.addEventListener("click", startGame);
+    playerNameInput.addEventListener("keydown", event => {
+      if (event.key === "Enter") startGame();
+    });
+
+    rankingBtn.addEventListener("click", () => {
+      renderRanking();
+      showScreen("ranking");
+    });
+
+    nextBtn.addEventListener("click", nextQuestion);
+
+    quitBtn.addEventListener("click", () => {
+      if (confirm("Deseja encerrar esta partida? A pontuação atual será salva.")) {
+        finishGame();
+      }
+    });
+
+    playAgainBtn.addEventListener("click", () => {
+      showScreen("start");
+      playerNameInput.focus();
+    });
+
+    goRankingBtn.addEventListener("click", () => {
+      renderRanking();
+      showScreen("ranking");
+    });
+
+    backHomeBtn.addEventListener("click", () => {
+      showScreen("start");
+      playerNameInput.focus();
+    });
+
+    clearRankingBtn.addEventListener("click", () => {
+      if (confirm("Tem certeza que deseja limpar todo o ranking?")) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderRanking();
+      }
+    });
+
+    updateHeaderScore();
+  </script>
+</body>
+
+</html>
